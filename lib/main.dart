@@ -12,19 +12,24 @@ class BenimUygulamam extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Zinciri Kırma"),
-        ), 
+        appBar: AppBar(title: const Text("Zinciri Kırma")),
         body: Center(
           child: Column(
-            
-            mainAxisAlignment: MainAxisAlignment.center, // Ortala
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              
-              AliskanlikKarti(baslik: "Su İçme", hedef: 5),
+              const AliskanlikKarti(
+                baslik: "Su İçme",
+                hedef: 5,
+                isIncreasing: true,
+              ),
 
-              
-              AliskanlikKarti(baslik: "Kitap Okuma", hedef: 20),
+              const SizedBox(height: 20),
+
+              const AliskanlikKarti(
+                baslik: "Sigara Limiti",
+                hedef: 5,
+                isIncreasing: false,
+              ),
             ],
           ),
         ),

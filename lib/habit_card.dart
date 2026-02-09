@@ -1,43 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+String bugununTarihiniAl() {
+  DateTime simdi = DateTime.now();
+  return "${simdi.year}-${simdi.month}-${simdi.day}";
+}
 
 class AliskanlikKarti extends StatefulWidget {
-  // 1. Dışarıdan gelecek bilgileri tanımlıyoruz
-  final String baslik; // Örn: "Su İçme"
-  final int hedef; // Örn: 5
+  final String baslik;
+  final int hedef;
   final bool isIncreasing;
-  // 2. Constructor (Kurucu): Bu widget oluşturulurken bu bilgileri istemesini sağlıyoruz.
-  const AliskanlikKarti({super.key, required this.baslik, required this.hedef, required this.isIncreasing});
+  final String id;
+
+  const AliskanlikKarti({
+    super.key,
+    required this.baslik,
+    required this.hedef,
+    required this.isIncreasing,
+    required this.id,
+  });
 
   @override
   State<AliskanlikKarti> createState() => _AliskanlikKartiState();
 }
 
 class _AliskanlikKartiState extends State<AliskanlikKarti> {
-  
   int anlikSayi = 0;
 
-  
-  void sayiyiArttir() {
+  void initState() {
+    super.initState();
+    veriYukle();
+  }
+
+  void veriYukle() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    
+    String bugununAnahtari = "${widget.id}_${bugununTarihiniAl()}";
+
     setState(() {
-      anlikSayi++; 
+      
+      anlikSayi = prefs.getInt(bugununAnahtari) ?? 0;
     });
   }
 
-  
-Color renkSec(int yuzde) {
-  
-  if (widget.isIncreasing == false) {
-    if (yuzde < 50) return Colors.green; 
-    if (yuzde <= 100) return Colors.orange; 
-    return Colors.red; 
-  } 
-  
-  else {
-    if (yuzde < 50) return Colors.red; 
-    if (yuzde < 100) return Colors.orange; 
-    return Colors.green; 
+  void veriKaydet() async {
+   final prefs = await SharedPreferences.getInstance();
+    
+    String bugununAnahtari = "${widget.id}_${bugununTarihiniAl()}";
+    
+    await prefs.setInt(bugununAnahtari, anlikSayi);
   }
-}
+
+  void sayiyiArttir() {
+    setState(() {
+      anlikSayi++;
+    });
+    veriKaydet();
+  }
+
+  Color renkSec(int yuzde) {
+    if (widget.isIncreasing == false) {
+      if (yuzde < 50) return Colors.green;
+      if (yuzde <= 100) return Colors.orange;
+      return Colors.red;
+    } else {
+      if (yuzde < 50) return Colors.red;
+      if (yuzde < 100) return Colors.orange;
+      return Colors.green;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     int yuzde = widget.hedef > 0 ? (anlikSayi / widget.hedef * 100).round() : 0;
@@ -49,14 +82,13 @@ Color renkSec(int yuzde) {
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start, 
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget
-                    .baslik, 
+                widget.baslik,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -64,14 +96,14 @@ Color renkSec(int yuzde) {
               ),
               const SizedBox(height: 5),
               Text(
-                "İlerleme: $anlikSayi / ${widget.hedef}", 
+                "İlerleme: $anlikSayi / ${widget.hedef}",
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],
           ),
 
           IconButton(
-            onPressed: sayiyiArttir, 
+            onPressed: sayiyiArttir,
             icon: const Icon(Icons.add_circle, size: 40, color: Colors.blue),
           ),
         ],

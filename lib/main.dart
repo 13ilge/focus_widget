@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'habit_card.dart';
 
+
+
 void main() {
   runApp(const BenimUygulamam());
 }
@@ -21,6 +23,7 @@ class BenimUygulamam extends StatelessWidget {
                 baslik: "Su İçme",
                 hedef: 5,
                 isIncreasing: true,
+                id: "su_v1",
               ),
 
               const SizedBox(height: 20),
@@ -29,6 +32,7 @@ class BenimUygulamam extends StatelessWidget {
                 baslik: "Sigara Limiti",
                 hedef: 5,
                 isIncreasing: false,
+                id: "sigara_v1",
               ),
             ],
           ),

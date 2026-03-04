@@ -1,16 +1,37 @@
-# focus_widget
+# 🔗 Zinciri Kırma — Alışkanlık Takip Uygulaması
 
-A new Flutter project.
+İyi alışkanlıkları kazanmak ve kötü alışkanlıkları bırakmak için günlük sayaç uygulaması.
 
-## Getting Started
+## Özellikler
 
-This project is a starting point for a Flutter application.
+- ✅ Günlük sayaç (artırma / azaltma)
+- ✅ İyi ve kötü alışkanlık ayrımı
+- ✅ Son 30 günlük ilerleme gösterimi (nokta grafiği)
+- ✅ Kaydırarak silme + geri alma
+- ✅ Verileri yerel olarak kaydetme (SharedPreferences)
 
-A few resources to get you started if this is your first Flutter project:
+## Kurulum
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Proje Yapısı
+
+```
+lib/
+├── main.dart                        # Uygulama giriş noktası
+├── constants/
+│   └── theme.dart                   # Tema sabitleri
+├── models/
+│   └── aliskanlik_model.dart        # Veri modeli
+├── screens/
+│   └── ana_ekran.dart               # Ana ekran
+├── services/
+│   └── storage_service.dart         # Veri kaydetme/yükleme
+├── utils/
+│   └── tarih_helper.dart            # Tarih formatlama
+└── widgets/
+    └── aliskanlik_karti.dart        # Alışkanlık kartı
+```

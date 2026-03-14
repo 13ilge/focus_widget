@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_bg">#FF11144C</color>
+    <color name="widget_text_white">#FFFFFFFF</color>
+    <color name="widget_text_grey">#FFB0B0B0</color>
+    <color name="widget_dot_green">#FF3A9679</color>
+    <color name="widget_dot_gold">#FFFABC60</color>
+    <color name="widget_dot_red">#FFE16262</color>
+    <color name="widget_dot_grey">#FF888888</color>
+</resources>

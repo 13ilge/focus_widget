@@ -11,7 +11,7 @@ class AnaEkran extends StatefulWidget {
   State<AnaEkran> createState() => _AnaEkranState();
 }
 
-class _AnaEkranState extends State<AnaEkran> {
+class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
   final TextEditingController _baslikController = TextEditingController();
   final TextEditingController _hedefController = TextEditingController();
   final TextEditingController _gunController = TextEditingController();
@@ -22,15 +22,24 @@ class _AnaEkranState extends State<AnaEkran> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _listeYukle();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _baslikController.dispose();
     _hedefController.dispose();
     _gunController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _listeYukle();
+    }
   }
 
   Future<void> _listeYukle() async {
@@ -210,6 +219,9 @@ class _AnaEkranState extends State<AnaEkran> {
                       hedef = parsedHedef;
                     }
 
+                    int gun = int.tryParse(_gunController.text) ?? 30;
+                    if (gun <= 0) gun = 30;
+
                     setState(() {
                       aliskanliklar.add(
                         Aliskanlik(
@@ -218,7 +230,7 @@ class _AnaEkranState extends State<AnaEkran> {
                           hedef: hedef,
                           isIncreasing: isIncreasing,
                           tur: secilenTur,
-                          gunSayisi: int.tryParse(_gunController.text) ?? 30,
+                          gunSayisi: gun,
                         ),
                       );
                     });
@@ -346,6 +358,10 @@ class _AnaEkranState extends State<AnaEkran> {
               aliskanliklar.removeAt(index);
             });
             StorageService.aliskanliklarKaydet(aliskanliklar);
+            StorageService.aliskanlikVerileriniSil(
+              siradaki.id,
+              siradaki.gunSayisi,
+            );
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

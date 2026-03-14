@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -29,6 +30,13 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
+import androidx.glance.Button
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
+import es.antonborri.home_widget.HomeWidgetBackgroundIntent
+import androidx.compose.ui.graphics.Color
 
 class AliskanlikWidget : GlanceAppWidget() {
 
@@ -59,9 +67,10 @@ class AliskanlikWidget : GlanceAppWidget() {
             emptyList()
         }
 
-        val bgColor = ColorProvider(android.graphics.Color.parseColor("#11144C"))
-        val textWhite = ColorProvider(android.graphics.Color.WHITE)
-        val textGrey = ColorProvider(android.graphics.Color.parseColor("#B0B0B0"))
+        // Compose Color nesneleri — ColorProvider doğrudan Color alabilir
+        val bgColor = ColorProvider(Color(0xFF11144C))
+        val textWhite = ColorProvider(Color.White)
+        val textGrey = ColorProvider(Color(0xFFB0B0B0))
 
         val durumMetni = if (tur == "boolean") {
             if (bugun >= 1) "✅ Yapıldı" else "⬜ Yapılmadı"
@@ -100,17 +109,55 @@ class AliskanlikWidget : GlanceAppWidget() {
 
                 Spacer(modifier = GlanceModifier.height(8.dp))
 
+                // Etkileşim Butonları
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (tur == "boolean") {
+                        Button(
+                            text = if (bugun >= 1) "Geri Al" else "Tamamla",
+                            onClick = actionRunCallback<InteractiveAction>(
+                                actionParametersOf(
+                                    ActionParameters.Key<String>("uri") to "app://widget/toggle?id=$habitId"
+                                )
+                            )
+                        )
+                    } else {
+                        Button(
+                            text = "-",
+                            onClick = actionRunCallback<InteractiveAction>(
+                                actionParametersOf(
+                                    ActionParameters.Key<String>("uri") to "app://widget/decrement?id=$habitId"
+                                )
+                            )
+                        )
+                        Spacer(modifier = GlanceModifier.width(8.dp))
+                        Button(
+                            text = "+",
+                            onClick = actionRunCallback<InteractiveAction>(
+                                actionParametersOf(
+                                    ActionParameters.Key<String>("uri") to "app://widget/increment?id=$habitId"
+                                )
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = GlanceModifier.height(12.dp))
+
+                // Geçmiş nokta grafiği
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val gosterilecek = gecmisVeriler.takeLast(15)
                     for ((i, sayi) in gosterilecek.withIndex()) {
-                        val renk = noktaRengiSec(sayi, hedef, isIncreasing, tur)
+                        val noktaRenk = noktaRenginiSec(sayi, hedef, isIncreasing, tur)
                         Box(
                             modifier = GlanceModifier
                                 .size(8.dp)
-                                .background(ColorProvider(renk))
+                                .background(noktaRenk)
                                 .cornerRadius(4.dp)
                         ) {}
                         if (i < gosterilecek.size - 1) {
@@ -122,16 +169,17 @@ class AliskanlikWidget : GlanceAppWidget() {
         }
     }
 
-    private fun noktaRengiSec(
+    // Renk değerlerini compose Color nesnesi olarak döndür (ColorProvider ile uyumlu)
+    private fun noktaRenginiSec(
         sayi: Int,
         hedef: Int,
         isIncreasing: Boolean,
         tur: String
-    ): Int {
-        val dotGreen = android.graphics.Color.parseColor("#3A9679")
-        val dotGold = android.graphics.Color.parseColor("#FABC60")
-        val dotRed = android.graphics.Color.parseColor("#E16262")
-        val dotGrey = android.graphics.Color.parseColor("#888888")
+    ): ColorProvider {
+        val dotGreen = ColorProvider(Color(0xFF3A9679))
+        val dotGold = ColorProvider(Color(0xFFFABC60))
+        val dotRed = ColorProvider(Color(0xFFE16262))
+        val dotGrey = ColorProvider(Color(0xFF888888))
 
         if (sayi == 0) {
             return if (isIncreasing) dotGrey else dotGreen
@@ -159,5 +207,23 @@ class AliskanlikWidget : GlanceAppWidget() {
                 else -> dotRed
             }
         }
+    }
+}
+
+class InteractiveAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val uriStr = parameters[ActionParameters.Key<String>("uri")] ?: return
+        val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(
+            context,
+            android.net.Uri.parse(uriStr)
+        )
+        backgroundIntent.send()
+
+        // Veri değiştiğinde Glance widget'ını yeniden render et
+        AliskanlikWidget().update(context, glanceId)
     }
 }

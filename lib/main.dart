@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'constants/theme.dart';
 import 'screens/ana_ekran.dart';
+import 'services/home_widget_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HomeWidgetService.init();
   runApp(const MyApp());
 }
 

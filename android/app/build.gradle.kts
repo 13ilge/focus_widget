@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation("androidx.glance:glance-appwidget:1.1.1")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
 }
 
 flutter {

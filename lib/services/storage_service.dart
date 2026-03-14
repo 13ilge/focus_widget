@@ -46,4 +46,15 @@ class StorageService {
 
     return geciciListe;
   }
+
+  static Future<void> aliskanlikVerileriniSil(String id, int gunSayisi) async {
+    final prefs = await SharedPreferences.getInstance();
+    final bugun = DateTime.now();
+    for (int i = 0; i < gunSayisi + 30; i++) {
+      // Just to be safe, search a bit beyond the required days, up to +30 extra days
+      final oGun = bugun.subtract(Duration(days: i));
+      final anahtar = '${id}_${tarihFormatla(oGun)}';
+      await prefs.remove(anahtar);
+    }
+  }
 }
